@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public final class RandomGen {
 
-    // Allow seed to be injected as a parameter
+    // Allow seed to be injected as a parameter as a future enhancement
     private final Random random_ = new Random(1000L);
 
     private final int[] randomNums_;
@@ -21,9 +21,9 @@ public final class RandomGen {
     private final float[] distributions_;
 
     private RandomGen(
-        final int[] randomNums,
-        final float[] probabilities,
-        final float[] distributions
+            final int[] randomNums,
+            final float[] probabilities,
+            final float[] distributions
     ) {
         randomNums_ = randomNums;
         probabilities_ = probabilities;
@@ -49,13 +49,12 @@ public final class RandomGen {
      *
      * @param numbers       the set of integers from which to generate a random number
      * @param probabilities the associated probabilities that will determine the frequency of occurrence of each integer
-     *
      * @return a new instance of <code>RandomGen</code>
      */
     public static RandomGen forNumbersAndProbabilities(final int[] numbers, final float[] probabilities) {
         Preconditions.checkArgument(
-            numbers.length == probabilities.length,
-            "Count of numbers does no match count of probabilities"
+                numbers.length == probabilities.length,
+                "Count of numbers does no match count of probabilities"
         );
 
         final ProbabilityDistributionBuilder builder = new ProbabilityDistributionBuilder();

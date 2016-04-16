@@ -86,8 +86,9 @@ public class RandomGenTest {
             long expectedFrequencyOrderOfMagnitude = Math.round(Math.log10(expectedFrequency));
             long actualFrequencyOrderOfMagnitude = Math.round(Math.log10(actualFrequency));
 
-            TestCase.assertEquals("Expected and Actual frequencies appear to differ by more than one order of " +
-                    "magnitude", expectedFrequencyOrderOfMagnitude, actualFrequencyOrderOfMagnitude);
+
+            TestCase.assertTrue("Expected and Actual frequencies appear to differ by more than one order of magnitude",
+                    Math.abs(expectedFrequencyOrderOfMagnitude - actualFrequencyOrderOfMagnitude) < 1);
         }
     }
 }
