@@ -3,6 +3,8 @@
 
 *.iml
 
+/target/
+
 ## Directory-based project format:
 .idea/
 
