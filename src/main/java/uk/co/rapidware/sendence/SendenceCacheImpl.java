@@ -1,22 +1,61 @@
 package uk.co.rapidware.sendence;
 
 import com.gs.collections.impl.map.mutable.UnifiedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
+ * This is the proof of concept implementation of the <code>SendenceCache</code>.  As such it does not currently
+ * provide Thread safety, which means that no memory visibility guarantees are made when a value is read from the
+ * cache.  Values inserted prior may not necessarily be visible to other threads.  Be careful when using in a
+ * multi-threaded environment.
+ * <p>
+ * The underlying storage is a Map from the GS Collections that is sympathetic to CPU memory access optimizations -
+ * resulting in reduced pointer chasing especially when there are no hash collisions.  This storage also adds little
+ * memory overhead since it does not use entry objects - resulting in little or no garbage under mutation.
+ * </p>
+ * Performance complexity matches that of other hash based collections in that best case is constant time (for keys
+ * with well distributed hashes).  Poor performing hash functions (poorly distributed or take too long to compute)
+ * would impact performance.
  */
 public class SendenceCacheImpl<T_Key, T_Value> implements SendenceCache<T_Key, T_Value> {
 
-    private final UnifiedMap<T_Key, T_Value> keyValueStore_ = new UnifiedMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(SendenceCacheImpl.class);
+
+    public static Logger getLogger() {
+        return LOGGER;
+    }
+
+    private final String cacheName_;
+    private final Map<T_Key, T_Value> keyValueStore_;
     private final ScheduledExecutorService executorService_;
 
-    public SendenceCacheImpl(final ScheduledExecutorService executorService) {
+    public SendenceCacheImpl(final String cacheName, final ScheduledExecutorService executorService) {
+        cacheName_ = cacheName;
+        keyValueStore_ = new UnifiedMap<>();
         executorService_ = executorService;
     }
 
-    public UnifiedMap<T_Key, T_Value> getKeyValueStore() {
+    public SendenceCacheImpl(
+        final String cacheName,
+        final int expectedCacheSize,
+        final ScheduledExecutorService executorService
+    ) {
+        cacheName_ = cacheName;
+        keyValueStore_ = new HashMap<>(expectedCacheSize, 0.67f);
+        executorService_ = executorService;
+    }
+
+    public String getCacheName() {
+        return cacheName_;
+    }
+
+    public Map<T_Key, T_Value> getKeyValueStore() {
         return keyValueStore_;
     }
 
@@ -44,7 +83,7 @@ public class SendenceCacheImpl<T_Key, T_Value> implements SendenceCache<T_Key, T
 
     @Override
     public void put(final T_Key key, final T_Value value, final Duration expireAfter) {
-        if (expireAfter.getEpoch() < 0) {
+        if (expireAfter.getInMillis() < 0) {
             throw new IllegalArgumentException("expireAfter cannot be a negative duration");
         }
 
@@ -64,7 +103,7 @@ public class SendenceCacheImpl<T_Key, T_Value> implements SendenceCache<T_Key, T
 
     @Override
     public boolean remove(final T_Key key) {
-        final T_Value previousValue = getKeyValueStore().removeKey(key);
+        final T_Value previousValue = getKeyValueStore().remove(key);
         return previousValue != null;
     }
 
@@ -80,11 +119,14 @@ public class SendenceCacheImpl<T_Key, T_Value> implements SendenceCache<T_Key, T
 
         @Override
         public T_Value call() throws Exception {
+            getLogger().info("Expiring value [{}] for key [{}] from Cache [{}]", value_, key_, getCacheName());
             final T_Value removed;
             if (value_.equals(getKeyValueStore().get(key_))) {
                 removed = getKeyValueStore().remove(key_);
+                getLogger().info("Value removed from Cache [{}]", getCacheName());
             }
             else {
+                getLogger().info("Value is no longer in Cache [{}]", getCacheName());
                 removed = null;
             }
             return removed;

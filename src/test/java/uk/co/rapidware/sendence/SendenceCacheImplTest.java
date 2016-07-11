@@ -19,7 +19,6 @@ import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.eq;
 
 /**
- * Created by Jivraj on 10/07/2016.
  */
 public class SendenceCacheImplTest {
 
@@ -54,10 +53,7 @@ public class SendenceCacheImplTest {
 
     @Test
     public void testPut() throws Exception {
-        final ScheduledExecutorService executorService =
-            getEasyMockSupport().createMock(ScheduledExecutorService.class);
-
-        final SendenceCacheImpl<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCache();
 
         final String key = "key";
         final Object value = new Object();
@@ -72,12 +68,21 @@ public class SendenceCacheImplTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutNullKey() throws Exception {
+    private SendenceCacheImpl<String, Object> createSendenceCache() {
         final ScheduledExecutorService executorService =
             getEasyMockSupport().createMock(ScheduledExecutorService.class);
 
-        final SendenceCache<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        return createSendenceCacheWith(executorService);
+    }
+
+    private SendenceCacheImpl<String, Object> createSendenceCacheWith(final ScheduledExecutorService executorService) {
+        final String cacheName = getTestName().getMethodName();
+        return new SendenceCacheImpl<>(cacheName, executorService);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutNullKey() throws Exception {
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCache();
 
         final String key = null;
         final Object value = new Object();
@@ -89,10 +94,7 @@ public class SendenceCacheImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutNullValue() throws Exception {
-        final ScheduledExecutorService executorService =
-            getEasyMockSupport().createMock(ScheduledExecutorService.class);
-
-        final SendenceCache<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCache();
 
         final String key = "key";
         final Object value = null;
@@ -104,10 +106,7 @@ public class SendenceCacheImplTest {
 
     @Test
     public void testPutTwice() throws Exception {
-        final ScheduledExecutorService executorService =
-            getEasyMockSupport().createMock(ScheduledExecutorService.class);
-
-        final SendenceCacheImpl<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCache();
 
         final String key = "key";
         final Object value = new Object();
@@ -137,7 +136,7 @@ public class SendenceCacheImplTest {
                 .once()
         ;
 
-        final SendenceCacheImpl<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCacheWith(executorService);
 
         final String key = "key";
         final Object value = new Object();
@@ -170,7 +169,7 @@ public class SendenceCacheImplTest {
                 .once()
         ;
 
-        final SendenceCacheImpl<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCacheWith(executorService);
 
         final String key = "key";
         final Object value = new Object();
@@ -207,7 +206,7 @@ public class SendenceCacheImplTest {
                 .once()
         ;
 
-        final SendenceCacheImpl<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCacheWith(executorService);
 
         final String key = "key";
         final Object value = new Object();
@@ -230,10 +229,7 @@ public class SendenceCacheImplTest {
 
     @Test
     public void testGet() throws Exception {
-        final ScheduledExecutorService executorService =
-            getEasyMockSupport().createMock(ScheduledExecutorService.class);
-
-        final SendenceCache<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCache<String, Object> sendenceCache = createSendenceCache();
 
         final String key = "key";
         final Object value = new Object();
@@ -263,7 +259,7 @@ public class SendenceCacheImplTest {
                 .once()
         ;
 
-        final SendenceCache<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCacheImpl<String, Object> sendenceCache = createSendenceCacheWith(executorService);
 
         final String key = "key";
         final Object value = new Object();
@@ -284,10 +280,7 @@ public class SendenceCacheImplTest {
 
     @Test
     public void testRemove() throws Exception {
-        final ScheduledExecutorService executorService =
-            getEasyMockSupport().createMock(ScheduledExecutorService.class);
-
-        final SendenceCache<String, Object> sendenceCache = new SendenceCacheImpl<>(executorService);
+        final SendenceCache<String, Object> sendenceCache = createSendenceCache();
 
         final String key = "key";
         final Object value = new Object();
@@ -298,12 +291,13 @@ public class SendenceCacheImplTest {
         final Object storedValue = sendenceCache.get(key);
         sendenceCache.remove("aDifferentKey");
         final Object valueStillThere = sendenceCache.get(key);
-        sendenceCache.remove(key);
+        final boolean removed = sendenceCache.remove(key);
         final Object shouldBeNull = sendenceCache.get(key);
 
         getEasyMockSupport().verifyAll();
         TestCase.assertEquals(value, storedValue);
         TestCase.assertSame(storedValue, valueStillThere);
+        TestCase.assertTrue(removed);
         TestCase.assertNull(shouldBeNull);
     }
 }

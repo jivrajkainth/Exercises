@@ -3,7 +3,7 @@ package uk.co.rapidware.sendence;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Jivraj on 10/07/2016.
+ * Simple wrapper class to keep the concept of duration coherent and allow APIs to be leaner.
  */
 public class Duration {
 
@@ -23,10 +23,20 @@ public class Duration {
         return durationUnit_;
     }
 
-    public long getEpoch() {
+    /**
+     * @return the duration as milleseconds
+     */
+    public long getInMillis() {
         return getDurationUnit().toMillis(getDurationAmount());
     }
 
+    /**
+     * Static factory method to provide less cumbersome instantiation syntax.
+     *
+     * @param durationAmount duration in milliseconds
+     *
+     * @return a newly created <code>Duration</code> instance.
+     */
     public static Duration forMs(final long durationAmount) {
         return new Duration(durationAmount, TimeUnit.MILLISECONDS);
     }
