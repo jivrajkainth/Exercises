@@ -66,10 +66,10 @@ public class SendenceCachePerfTest {
 
         for (int index = 0; index < entryCount; index++) {
             final String key = String.valueOf(index);
-            sendenceCache.put(key, new Object());
+            final Object value = new Object();
+            sendenceCache.put(key, value);
             keysToRetrieve[index] = key;
         }
-        Arrays.sort(keysToRetrieve);
 
         final int runCount = 10;
         final String[] resultLines = new String[runCount];
