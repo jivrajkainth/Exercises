@@ -47,7 +47,7 @@ public class SendenceCacheImpl<T_Key, T_Value> implements SendenceCache<T_Key, T
         final ScheduledExecutorService executorService
     ) {
         cacheName_ = cacheName;
-        keyValueStore_ = new HashMap<>(expectedCacheSize, 0.67f);
+        keyValueStore_ = new UnifiedMap<>(expectedCacheSize, 0.67f);
         executorService_ = executorService;
     }
 
