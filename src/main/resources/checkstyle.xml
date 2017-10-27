@@ -63,7 +63,7 @@
 
         <module name="PackageName">
             <property name="format"
-                      value="^(com.ttrt.(ttfx|fxts).)(bogw|common|converter|communication|domain|eod|repository|service|historicaldataservice|marketdataloader|databaseloader|fds|uams|tfs|sds|tbs|ens)(\.[a-z]*)*$"/>
+                      value="^(uk.co.rapidware.)(ahl|books|circles|sendence|words)(\.[a-z]*)*$"/>
         </module>
         <module name="OuterTypeFilename"/>
         <module name="OuterTypeNumber"/>
