@@ -1,6 +1,7 @@
 package uk.co.rapidware.ahl;
 
 import com.google.common.base.Preconditions;
+import com.gs.collections.api.FloatIterable;
 import com.gs.collections.api.list.primitive.MutableFloatList;
 import com.gs.collections.impl.list.mutable.primitive.FloatArrayList;
 
@@ -21,9 +22,9 @@ public final class RandomGen {
     private final float[] distributions_;
 
     private RandomGen(
-            final int[] randomNums,
-            final float[] probabilities,
-            final float[] distributions
+        final int[] randomNums,
+        final float[] probabilities,
+        final float[] distributions
     ) {
         randomNums_ = randomNums;
         probabilities_ = probabilities;
@@ -36,7 +37,7 @@ public final class RandomGen {
     public int nextNum() {
         final float aFloat = getRandom().nextFloat();
 
-        // When the randome number set is very large, binary search provides speed benefits as complexity is logarithmic
+        // When the random number set is very large, binary search provides speed benefits as complexity is logarithmic
         final int index = Arrays.binarySearch(getDistributions(), aFloat);
 
         final int indexOfRandomNum = index >= 0 ? index : -1 * (index + 1);
@@ -49,12 +50,13 @@ public final class RandomGen {
      *
      * @param numbers       the set of integers from which to generate a random number
      * @param probabilities the associated probabilities that will determine the frequency of occurrence of each integer
+     *
      * @return a new instance of <code>RandomGen</code>
      */
     public static RandomGen forNumbersAndProbabilities(final int[] numbers, final float[] probabilities) {
         Preconditions.checkArgument(
-                numbers.length == probabilities.length,
-                "Count of numbers does no match count of probabilities"
+            numbers.length == probabilities.length,
+            "Count of numbers does no match count of probabilities"
         );
 
         final ProbabilityDistributionBuilder builder = new ProbabilityDistributionBuilder();
@@ -72,24 +74,20 @@ public final class RandomGen {
         return randomNums_;
     }
 
-    private float[] getProbabilities() {
-        return probabilities_;
-    }
-
     private float[] getDistributions() {
         return distributions_;
     }
 
     private static final class ProbabilityDistributionBuilder {
 
-        public static final float EPSILON = 0.00000001f;
+        static final float EPSILON = 0.00000001f;
         private final MutableFloatList distribution_ = new FloatArrayList();
 
-        public MutableFloatList getDistribution() {
+        MutableFloatList getDistribution() {
             return distribution_;
         }
 
-        public void addProbability(final float probability) {
+        void addProbability(final float probability) {
             if (getDistribution().isEmpty()) {
                 getDistribution().add(probability);
             }
@@ -100,11 +98,11 @@ public final class RandomGen {
             }
         }
 
-        public boolean isComplete() {
+        boolean isComplete() {
             return Math.abs(getDistribution().getLast() - 1.0f) < EPSILON;
         }
 
-        public float[] toDistribution() {
+        float[] toDistribution() {
             return getDistribution().toArray();
         }
     }

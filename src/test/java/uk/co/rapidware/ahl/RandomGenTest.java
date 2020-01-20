@@ -17,7 +17,7 @@ public class RandomGenTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomGenTest.class);
 
-    public static Logger getLogger() {
+    private static Logger getLogger() {
         return LOGGER;
     }
 
@@ -59,8 +59,8 @@ public class RandomGenTest {
             frequencyCounters.put(eachRandomNumber, new LongAdder());
         }
 
-        // Machine has two cores
-        final ForkJoinPool defaultPool = new ForkJoinPool(2);
+        // Machine has 4 cores
+        final ForkJoinPool defaultPool = new ForkJoinPool(4);
 
         getLogger().info("ThreadCount [{}]", defaultPool.getParallelism());
 
